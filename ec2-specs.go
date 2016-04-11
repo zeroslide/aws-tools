@@ -67,6 +67,8 @@ func main() {
 				publicIp = *instance.PublicIpAddress
 			}
 
+			privateIp := *instance.PrivateIpAddress
+
 			secGroup := []string{}
 
 			for index, _ := range instance.SecurityGroups {
@@ -94,7 +96,7 @@ func main() {
 				}
 			}
 
-			fmt.Printf("%v, %v, %v, %vGiB, %v\n", name, *instance.InstanceType, publicIp, ebsVolumns, secGroup)
+			fmt.Printf("%v,%v,%v,%v,%vGiB,%v\n", name, *instance.InstanceType, publicIp, privateIp, ebsVolumns, secGroup)
 		}
 	}
 }
