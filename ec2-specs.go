@@ -96,7 +96,30 @@ func main() {
 				}
 			}
 
-			fmt.Printf("%v,%v,%v,%v,%vGiB,%v\n", name, *instance.InstanceType, publicIp, privateIp, ebsVolumns, secGroup)
+			subnetParams := &ec2.DescribeSubnetsInput{
+				SubnetIds: []*string{
+					instance.SubnetId,
+				},
+			}
+
+			resp, err := svc.DescribeSubnets(subnetParams)
+
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			subnets := []string{}
+
+			for index, _ := range resp.Subnets {
+				for _, keys := range resp.Subnets[index].Tags {
+					if *keys.Key == "Name" {
+						subnets = append(subnets, url.QueryEscape(*keys.Value))
+					}
+				}
+			}
+
+			fmt.Printf("%v,%v,%v,%v,%v,%vGiB,%v\n", name, *instance.InstanceType, publicIp, privateIp, subnets, ebsVolumns, secGroup)
 		}
 	}
 }
