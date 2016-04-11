@@ -133,7 +133,15 @@ func main() {
 
 			instanceProfile := strings.Split(*instance.IamInstanceProfile.Arn, "/")[1]
 
-			fmt.Printf("%v,%v,%v,%v,%v,%v,%v,%vGiB,%v,%v\n", name, serviceName, serviceComponent, *instance.InstanceType, publicIp, privateIp, subnets, ebsVolumns, secGroup, instanceProfile)
+			elasticIp := []string{}
+
+			for index, _ := range instance.NetworkInterfaces {
+				if instance.NetworkInterfaces[index] != nil && instance.NetworkInterfaces[index].Association != nil {
+					elasticIp = append(elasticIp, *instance.NetworkInterfaces[index].Association.PublicIp)
+				}
+			}
+
+			fmt.Printf("%v,%v,%v,%v,%v,%v,%v,%v,%vGiB,%v,%v\n", name, serviceName, serviceComponent, *instance.InstanceType, publicIp, elasticIp, privateIp, subnets, ebsVolumns, secGroup, instanceProfile)
 		}
 	}
 }
