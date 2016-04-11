@@ -56,9 +56,20 @@ func main() {
 		for _, instance := range results.Reservations[index].Instances {
 
 			name := "None"
+			serviceName := ""
+			serviceComponent := ""
+
 			for _, keys := range instance.Tags {
 				if *keys.Key == "Name" {
 					name = url.QueryEscape(*keys.Value)
+				}
+
+				if *keys.Key == "Service" {
+					serviceName = url.QueryEscape(*keys.Value)
+				}
+
+				if *keys.Key == "SeviceComponent" {
+					serviceComponent = url.QueryEscape(*keys.Value)
 				}
 			}
 
@@ -122,7 +133,7 @@ func main() {
 
 			instanceProfile := strings.Split(*instance.IamInstanceProfile.Arn, "/")[1]
 
-			fmt.Printf("%v,%v,%v,%v,%v,%vGiB,%v,%v\n", name, *instance.InstanceType, publicIp, privateIp, subnets, ebsVolumns, secGroup, instanceProfile)
+			fmt.Printf("%v,%v,%v,%v,%v,%v,%v,%vGiB,%v,%v\n", name, serviceName, serviceComponent, *instance.InstanceType, publicIp, privateIp, subnets, ebsVolumns, secGroup, instanceProfile)
 		}
 	}
 }
