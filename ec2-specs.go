@@ -61,13 +61,40 @@ func main() {
 				}
 			}
 
-			publicIp := ""
+			publicIp := "N/A"
 
 			if instance.PublicIpAddress != nil {
 				publicIp = *instance.PublicIpAddress
 			}
 
-			fmt.Printf("%v, %v, %v\n", name, *instance.InstanceType, publicIp)
+			secGroup := []string{}
+
+			for index, _ := range instance.SecurityGroups {
+				secGroup = append(secGroup, *instance.SecurityGroups[index].GroupName)
+			}
+
+			ebsVolumns := []int64{}
+
+			for index, _ := range instance.BlockDeviceMappings {
+				params := &ec2.DescribeVolumesInput{
+					VolumeIds: []*string{
+						instance.BlockDeviceMappings[index].Ebs.VolumeId,
+					},
+				}
+
+				resp, err := svc.DescribeVolumes(params)
+
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
+
+				for index, _ := range resp.Volumes {
+					ebsVolumns = append(ebsVolumns, *resp.Volumes[index].Size)
+				}
+			}
+
+			fmt.Printf("%v, %v, %v, %vGiB, %v\n", name, *instance.InstanceType, publicIp, ebsVolumns, secGroup)
 		}
 	}
 }
