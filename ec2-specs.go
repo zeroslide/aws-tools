@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"net/url"
+	"strings"
 )
 
 func main() {
@@ -119,7 +120,9 @@ func main() {
 				}
 			}
 
-			fmt.Printf("%v,%v,%v,%v,%v,%vGiB,%v\n", name, *instance.InstanceType, publicIp, privateIp, subnets, ebsVolumns, secGroup)
+			instanceProfile := strings.Split(*instance.IamInstanceProfile.Arn, "/")[1]
+
+			fmt.Printf("%v,%v,%v,%v,%v,%vGiB,%v,%v\n", name, *instance.InstanceType, publicIp, privateIp, subnets, ebsVolumns, secGroup, instanceProfile)
 		}
 	}
 }
