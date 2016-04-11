@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"net/url"
 )
 
 func main() {
@@ -29,7 +30,11 @@ func main() {
 	filters := []*ec2.Filter{
 		&ec2.Filter{
 			Name:   aws.String("tag:Environment"),
-			Values: []*string{aws.String("prod")},
+			Values: []*string{aws.String("ctrl")},
+		},
+		&ec2.Filter{
+			Name:   aws.String("tag:AWSComponent"),
+			Values: []*string{aws.String("ec2")},
 		},
 	}
 
@@ -45,4 +50,24 @@ func main() {
 	}
 
 	fmt.Println("We have", len(results.Reservations), "instances")
+
+	for index, _ := range results.Reservations {
+		for _, instance := range results.Reservations[index].Instances {
+
+			name := "None"
+			for _, keys := range instance.Tags {
+				if *keys.Key == "Name" {
+					name = url.QueryEscape(*keys.Value)
+				}
+			}
+
+			publicIp := ""
+
+			if instance.PublicIpAddress != nil {
+				publicIp = *instance.PublicIpAddress
+			}
+
+			fmt.Printf("%v, %v, %v\n", name, *instance.InstanceType, publicIp)
+		}
+	}
 }
